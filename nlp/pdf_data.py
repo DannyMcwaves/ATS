@@ -3,7 +3,7 @@ Using threads to remove to extract the raw data from the processed pdf.
 """
 
 
-from multiprocessing import Process, Pool
+from multiprocessing import Pool
 from threading import Thread
 from threading import Lock
 from queue import Queue, Empty
@@ -109,6 +109,7 @@ def worker2(data):
     """
     the worker function supposed to read process the pdf data.
     """
+    d = None
     try:
         d = remove_stop_words(data)
     except AttributeError:
@@ -126,16 +127,6 @@ def using_multiprocess(pdfname):
     with Pool(PROCESS_POOL_SIZE) as pool:
         iterable = yield_text_from_pdf(pdfname)
         results = pool.map(worker2, iterable)
-    for result in results:
-        database_writer(result)
-
-
-pdfLoc = "/media/danny_mcwaves/CODE_BASE/pyPROJECTS/ATS/uploads/french.pdf"
-
-if __name__ == '__main__':
-    t1 = time.time()
-    using_multiprocess(pdfLoc)
-    t2 = time.time()
-    print(t2-t1)
+    return results
 
 # # time frame for threads and multi process almost the same.
