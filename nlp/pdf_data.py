@@ -3,13 +3,16 @@ Using threads to remove to extract the raw data from the processed pdf.
 """
 
 
-import multiprocessing
+from multiprocessing import Process, Pool
 from threading import Thread
 from threading import Lock
 from queue import Queue, Empty
 import time
 from nlp import remove_stop_words, yield_text_from_pdf
 THREAD_POOL_SIZE = 10
+PROCESS_POOL_SIZE = 10
+
+# ### USING THREADS IN THIS SCENARIO ###########
 
 
 class Throttle:
@@ -98,10 +101,41 @@ def using_threads(pdfname):
             raise result
         database_writer(result)
 
+
+# ## USIGNG MULTIPROCESSING IN THIS SCENARIO ###########
+
+
+def worker2(data):
+    """
+    the worker function supposed to read process the pdf data.
+    """
+    try:
+        d = remove_stop_words(data)
+    except AttributeError:
+        pass
+    except Exception as err:
+        print(err.args[1])
+    finally:
+        return d
+
+
+def using_multiprocess(pdfname):
+    """
+    this should handle the multiprocessing.
+    """
+    with Pool(PROCESS_POOL_SIZE) as pool:
+        iterable = yield_text_from_pdf(pdfname)
+        results = pool.map(worker2, iterable)
+    for result in results:
+        database_writer(result)
+
+
 pdfLoc = "/media/danny_mcwaves/CODE_BASE/pyPROJECTS/ATS/uploads/french.pdf"
 
 if __name__ == '__main__':
     t1 = time.time()
-    using_threads(pdfLoc)
+    using_multiprocess(pdfLoc)
     t2 = time.time()
     print(t2-t1)
+
+# # time frame for threads and multi process almost the same.
