@@ -51,4 +51,5 @@ def remove_stop_words(text):
     tokenize = {x for x in wordpunct_tokenize(text)}
     stopwords_list = stopwords.words(detect_language(text))
 
-    return [x for x in tokenize if x not in stopwords_list and len(x) > 1]
+    return [x for x in tokenize if x not in stopwords_list and len(x) > 1 and
+            (str(x).isalnum() or x.isalpha() or str(x).isdigit() or x.isdecimal())]
