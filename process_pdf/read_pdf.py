@@ -19,10 +19,10 @@ def yield_text_from_pdf(pdfname):
     with open(pdfname, "rb") as file:
         pdf = PyPDF2.PdfFileReader(file)
 
-    # loop through the number of pages and yield content
-    for i in range(0, pdf.numPages):
-        page = pdf.getPage(i)
-        yield page.extractText()
+        # loop through the number of pages and yield content
+        for i in range(0, pdf.numPages):
+            page = pdf.getPage(i)
+            yield page.extractText()
 
 
 def detect_language(text):
