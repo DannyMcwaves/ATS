@@ -1,13 +1,13 @@
 """
 NATURAL LANGUAGE PROCESSING
 """
-
 from nltk import wordpunct_tokenize
 from nltk.corpus import stopwords
 import PyPDF2
 
 
 __all__ = ["remove_stop_words", "yield_text_from_pdf"]
+# nltk.data.path.append('/Users/macbookpro/big_data/nltk_data')
 
 
 def yield_text_from_pdf(pdfname):
@@ -44,10 +44,10 @@ def detect_language(text):
 def remove_stop_words(text):
     """
     removes all the stopwords from the text and returns a list of the remaining words.
+    tokenize the yielded pages from the pdf file.
+    remove all stopwords and return a list of actual words.
     """
-
     tokenize = {x for x in wordpunct_tokenize(text)}
     stopwords_list = stopwords.words(detect_language(text))
-
     return [x for x in tokenize if x not in stopwords_list and len(x) > 1 and
             (x.isalnum() or x.isalpha() or x.isdigit() or x.isdecimal())]
