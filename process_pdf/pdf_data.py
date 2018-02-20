@@ -1,101 +1,19 @@
-"""
-Using threads to remove to extract the raw data from the processed pdf.
-"""
+
+__all__ = ['using_multiprocess']
 
 
 from multiprocessing import Pool
-from threading import Thread
-from threading import Lock
-from queue import Queue, Empty
-import time
-from process_pdf import remove_stop_words, yield_text_from_pdf
-THREAD_POOL_SIZE = 10
+from app import logger
+from .read_pdf import remove_stop_words, yield_text_from_pdf
 PROCESS_POOL_SIZE = 10
-
-# ### USING THREADS IN THIS SCENARIO ###########
-
-
-class Throttle:
-
-    def __init__(self, rate):
-        """
-        using token bucket algorithm for throttling.
-        """
-        self._consume_lock = Lock()
-        self.rate = rate
-        self.token = 0
-        self.last = 0
-
-    def consume(self, amount=1):
-        with self._consume_lock:
-
-            now = time.time()
-            self.last = now if self.last == 0 else self.last
-            elapsed = now - self.last
-
-            if int(elapsed * self.rate):
-                self.token += int(elapsed * self.rate)
-                self.last = now
-
-            # never overfill the bucket
-            self.token = self.rate if self.token > self.rate else self.rate
-
-            # dispatch tokens if available
-            if self.token >= amount:
-                self.token -= amount
-            else:
-                amount = 0
-
-            return amount
-
-
-def thread_worker(work_queue, result_queue, throttle):
-    while not work_queue.empty():
-        try:
-            item = work_queue.get(block=False)
-        except Empty:
-            break
-        else:
-            while not throttle.consume():
-                pass
-            try:
-                result_queue.put(remove_stop_words(item))
-            except AttributeError:
-                pass
-            except Exception as err:
-                result_queue.put(err)
-            finally:
-                work_queue.task_done()
-
-
-def using_threads(pdfname):
-    """
-    using thread instead of futures module for concurrency.
-    """
-    work_queue = Queue()
-    results_queue = Queue()
-    throttle = Throttle(10)
-
-    for page in yield_text_from_pdf(pdfname):
-        work_queue.put(page)
-
-    threads = [Thread(target=thread_worker, args=(work_queue, results_queue, throttle)) for _ in range(0, THREAD_POOL_SIZE)]
-    for thread in threads:
-        thread.start()
-    work_queue.join()
-
-    while threads:
-        threads.pop().join()
-
-    return results_queue
-
-
-# ## USING MULTIPROCESSING IN THIS SCENARIO ###########
+logs = logger(__name__)
 
 
 def process_worker(data):
     """
     the worker function supposed to read process the pdf data.
+    process worker accepts data from an already processed PDF and
+    then removes the stopwords.
     """
     d = None
     try:
@@ -111,11 +29,20 @@ def process_worker(data):
 def using_multiprocess(pdfname):
     """
     this should handle the multiprocessing.
+    Using the Pool multiprocess function to map the pool worker to
+    map the process worker to yielded test from the PDF.
     """
+
+    logs.info('worker {} started with pdf file {}'.format(__name__, pdfname))
+
     with Pool(PROCESS_POOL_SIZE) as pool:
         iterable = yield_text_from_pdf(pdfname)
         results = pool.map(process_worker, iterable)
 
     return results
 
-# # time frame for threads and multi process almost the same.
+
+if __name__ == '__main__':
+    data = using_multiprocess('../pdf_samples/eddie_jung.pdf')
+    for x in data:
+        print(x)
