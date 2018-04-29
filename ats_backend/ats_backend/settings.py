@@ -38,8 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'ats_api.apps.AtsApiConfig',
-    'atsApi.apps.AtsapiConfig'
+    'ats_api.apps.AtsApiConfig'
 ]
 
 MIDDLEWARE = [
@@ -78,8 +77,8 @@ WSGI_APPLICATION = 'ats_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'ats_api',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/Users/macbookpro/open_source/ATS/sqlite3.db',
     }
 }
 
@@ -123,7 +122,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # media root where the users uploaded files would be base.
-MEDIA_ROOT = 'resume_db'
+MEDIA_URL = '/media/'
+
+# MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 
 ####################
@@ -133,7 +134,7 @@ MEDIA_ROOT = 'resume_db'
 broker_url = 'amqp://'
 
 # using a more persistent database for backend purposes.
-result_backend = 'mongodb://localhost:27017/ats'
+result_backend = 'mongodb://localhost:27017/atsBackend'
 
 # enable utc timezone configuration.
 enable_utc = True
