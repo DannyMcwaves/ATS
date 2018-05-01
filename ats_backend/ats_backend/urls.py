@@ -19,7 +19,7 @@ from django.contrib import admin
 from rest_framework.documentation import include_docs_urls
 
 urlpatterns = [
-    url(r'^api/', include('ats_api.urls', namespace='api')),
+    url(r'^admin/', admin.site.urls),
     url(r'^doc/', include_docs_urls(title='REST API for DRF')),
-    url(r'', admin.site.urls)
+    url(r'', include('ats_api.urls', namespace='api'))
 ]
