@@ -3,10 +3,10 @@ __all__ = ['using_multiprocess']
 
 
 from multiprocessing import Pool
-from app import logger
+# from app import logger
 from .read_pdf import remove_stop_words, yield_text_from_pdf
 PROCESS_POOL_SIZE = 10
-logs = logger(__name__)
+# logs = logger(__name__)
 
 
 def process_worker(data):
@@ -33,7 +33,7 @@ def using_multiprocess(pdfname):
     map the process worker to yielded test from the PDF.
     """
 
-    logs.info('worker {} started with pdf file {}'.format(__name__, pdfname))
+    # logs.info('worker {} started with pdf file {}'.format(__name__, pdfname))
 
     with Pool(PROCESS_POOL_SIZE) as pool:
         iterable = yield_text_from_pdf(pdfname)
